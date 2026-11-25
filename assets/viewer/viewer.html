@@ -454,11 +454,14 @@
       }
     }
 
-    // Check URL params for auto-connect
+    // Auto-connect on load: to the ?ws= URL if given, otherwise to the default
+    // URL when the page was served by the daemon (not opened from a file).
     const params = new URLSearchParams(window.location.search);
     const wsUrl = params.get('ws');
     if (wsUrl) {
       urlInput.value = wsUrl;
+      connect();
+    } else if (location.protocol === 'http:' || location.protocol === 'https:') {
       connect();
     }
   </script>
