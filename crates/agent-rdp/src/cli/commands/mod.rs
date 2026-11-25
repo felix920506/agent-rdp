@@ -8,6 +8,7 @@ pub mod drive;
 pub mod keyboard;
 pub mod locate;
 pub mod mouse;
+pub mod record;
 pub mod screenshot;
 pub mod scroll;
 pub mod session;

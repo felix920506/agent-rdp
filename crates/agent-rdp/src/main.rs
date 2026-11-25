@@ -3,6 +3,7 @@
 mod cli;
 mod ipc_client;
 mod output;
+mod recorder;
 mod session_manager;
 
 use clap::Parser;
@@ -71,6 +72,9 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
         }
         Commands::View(args) => {
             cli::commands::view::run(args, &output).await
+        }
+        Commands::Record(args) => {
+            cli::commands::record::run(&cli.session, args, &output, cli.timeout, cli.stream_port).await
         }
     }
 }

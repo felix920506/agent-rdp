@@ -70,6 +70,8 @@ The main package uses `optionalDependencies` with `os`/`cpu` fields so npm only 
 
 **WebSocket Streaming** (`ws_server.rs`, `ws_input.rs`): Optional debugging viewer. Enable with `--stream-port 9224`. Broadcasts JPEG frames, accepts mouse/keyboard input matching agent-browser protocol.
 
+**Recording** (`crates/agent-rdp/src/recorder/`): `agent-rdp record` connects to the WebSocket stream as a client and pipes the JPEG frames into an external ffmpeg at a constant frame rate. `ffmpeg.rs` handles ffmpeg discovery, hardware encoder probing (a short test encode per candidate), the constant-quality flags for each encoder, and the crash-tolerant container settings (fragmented MP4, MKV or TS).
+
 **UI Automation** (`automation/*.rs`): Windows UI Automation support via PowerShell agent. Enable with `--enable-win-automation` at connect time. Uses Dynamic Virtual Channel (DVC) for fast bidirectional IPC. See [docs/AUTOMATION.md](docs/AUTOMATION.md) for protocol details.
 
 ### Request Flow
@@ -105,6 +107,7 @@ Input sent as `FastPathInputEvent` (mouse via `MousePdu`, keyboard via scancode 
 | `AGENT_RDP_PASSWORD` | RDP password |
 | `AGENT_RDP_SESSION` | Session name (default: "default") |
 | `AGENT_RDP_STREAM_PORT` | WebSocket streaming port (0 = disabled) |
+| `AGENT_RDP_FFMPEG` | ffmpeg binary for `record` (jellyfin-ffmpeg recommended) |
 
 ## Release Process
 

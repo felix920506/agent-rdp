@@ -72,6 +72,58 @@ pub enum Commands {
 
     /// Open the web viewer in a browser
     View(ViewArgs),
+
+    /// Record a video of the session from the WebSocket stream (requires ffmpeg)
+    Record(RecordArgs),
+}
+
+/// Record command arguments.
+#[derive(Parser)]
+pub struct RecordArgs {
+    /// Output file. The extension picks the container: .mp4 (fragmented, default),
+    /// .mkv or .ts. All are playable even if recording is cut short by a crash.
+    /// Defaults to agent-rdp-<session>-<UTC timestamp>.mp4
+    pub output: Option<String>,
+
+    /// Streaming port of the session (defaults to --stream-port if set, else 9224)
+    #[arg(long)]
+    pub port: Option<u16>,
+
+    /// Host running the daemon's WebSocket stream
+    #[arg(long, default_value = "localhost")]
+    pub host: String,
+
+    /// Full WebSocket URL (overrides --host/--port)
+    #[arg(long)]
+    pub url: Option<String>,
+
+    /// Output frame rate. Match the daemon's AGENT_RDP_STREAM_FPS (default 10)
+    #[arg(long, default_value = "10")]
+    pub fps: u32,
+
+    /// Constant quality (CRF/CQP scale, 0-51, lower = better)
+    #[arg(long, short = 'q', default_value = "23", value_parser = clap::value_parser!(u8).range(0..=51))]
+    pub quality: u8,
+
+    /// Video codec: h264 or hevc
+    #[arg(long, default_value = "h264")]
+    pub codec: String,
+
+    /// Encoder: auto (hardware if available), software, or an ffmpeg encoder name (e.g. h264_vaapi)
+    #[arg(long, default_value = "auto")]
+    pub encoder: String,
+
+    /// DRM render node used for VA-API encoding
+    #[arg(long, default_value = "/dev/dri/renderD128")]
+    pub vaapi_device: String,
+
+    /// Stop after this many seconds
+    #[arg(long)]
+    pub duration: Option<f64>,
+
+    /// Path to ffmpeg (jellyfin-ffmpeg recommended)
+    #[arg(long, env = "AGENT_RDP_FFMPEG")]
+    pub ffmpeg: Option<String>,
 }
 
 /// View command arguments.
