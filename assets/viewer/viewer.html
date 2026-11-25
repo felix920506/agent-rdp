@@ -441,6 +441,19 @@
       }
     });
 
+    // When served over HTTP, default the WebSocket host to the host the page
+    // was loaded from (e.g. a LAN IP) instead of localhost, keeping the port.
+    if (location.protocol === 'http:' || location.protocol === 'https:') {
+      try {
+        const defaultUrl = new URL(urlInput.value);
+        defaultUrl.hostname = location.hostname;
+        if (location.protocol === 'https:') defaultUrl.protocol = 'wss:';
+        urlInput.value = defaultUrl.toString().replace(/\/$/, '');
+      } catch (e) {
+        // Keep the original default if it can't be parsed
+      }
+    }
+
     // Check URL params for auto-connect
     const params = new URLSearchParams(window.location.search);
     const wsUrl = params.get('ws');
