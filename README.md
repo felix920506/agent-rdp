@@ -273,6 +273,27 @@ agent-rdp --stream-port 9224 connect --host 192.168.1.100 -u Admin -p secret
 agent-rdp view
 ```
 
+### Recording
+
+Record the session to a video file. The recorder connects to the WebSocket stream like any viewer, so the session must be started with `--stream-port`:
+
+```bash
+agent-rdp --stream-port 9224 connect --host 192.168.1.100 -u Admin -p secret
+
+# Record until Ctrl+C (default file: agent-rdp-<session>-<UTC time>.mp4)
+agent-rdp --stream-port 9224 record
+
+# Record 60 seconds to a specific file
+agent-rdp record session.mp4 --port 9224 --duration 60
+```
+
+The recorder needs an `ffmpeg` binary. [jellyfin-ffmpeg](https://github.com/jellyfin/jellyfin-ffmpeg/releases) is recommended because it ships with all hardware encoders enabled. It is looked up in this order: `--ffmpeg` / `AGENT_RDP_FFMPEG`, next to the `agent-rdp` executable, the default jellyfin-ffmpeg install location, then `PATH`.
+
+- **Crash-safe output**: `.mp4` files are written as fragmented MP4, with a new fragment at least once per second, so a file cut short by a crash, power loss or `kill -9` still plays in browsers, QuickTime, VLC, etc. Only the last second or two is lost. If the recorder itself is killed, ffmpeg still finalizes the file. `.mkv` and `.ts` are also supported.
+- **Hardware encoding**: `--encoder auto` (the default) test-encodes with NVENC, Quick Sync, VA-API or Rockchip MPP on Linux, NVENC, Quick Sync or AMF on Windows, and VideoToolbox on macOS, and uses the first one that works. Otherwise it falls back to libx264/libx265. You can force one with `--encoder software` or an ffmpeg encoder name such as `--encoder h264_vaapi`.
+- **Constant quality**: `-q/--quality` (0-51, default 23, lower is better) sets the CRF for x264/x265, CQP for VA-API/AMF/Rockchip, the `-cq` target for NVENC, ICQ for Quick Sync, and a mapped `-q:v` for VideoToolbox.
+- Frames are written at a constant `--fps` (default 10, matching the daemon's `AGENT_RDP_STREAM_FPS`); the latest frame is repeated when the desktop is idle, so playback runs in real time. Use `--codec hevc` for smaller files.
+
 ## JSON Output
 
 All commands support `--json` for structured output:
@@ -316,6 +337,7 @@ agent-rdp --json screenshot --base64
 | `AGENT_RDP_PASSWORD` | RDP password |
 | `AGENT_RDP_SESSION` | Session name (default: "default") |
 | `AGENT_RDP_STREAM_PORT` | WebSocket streaming port (0 = disabled) |
+| `AGENT_RDP_FFMPEG` | Path to the ffmpeg binary used by `record` |
 
 ## Node.js API
 

@@ -36,6 +36,10 @@ tracing-subscriber = { workspace = true }
 # Error handling
 anyhow = { workspace = true }
 
+# WebSocket client (session recording)
+tokio-tungstenite = { workspace = true }
+futures-util = { workspace = true }
+
 # Platform utilities
 glob = { workspace = true }
 shellexpand = "3"

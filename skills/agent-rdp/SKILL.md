@@ -294,6 +294,16 @@ agent-rdp view --port 9224
 # Or manually access WebSocket at ws://localhost:9224 (broadcasts JPEG frames)
 ```
 
+### Recording a session video
+
+```bash
+# Requires --stream-port at connect time and an ffmpeg binary (jellyfin-ffmpeg recommended)
+agent-rdp record run.mp4 --port 9224 --duration 120   # or stop with Ctrl+C
+agent-rdp --json record run.mp4 --port 9224 --duration 30   # prints path, frames, encoder
+```
+
+Hardware encoding is used automatically when available. The MP4 stays playable even if recording is interrupted.
+
 ## Tips
 
 **Prefer `automate fill` over `keyboard type`** when automation is enabled—it's lossless (no dropped characters) and faster.
